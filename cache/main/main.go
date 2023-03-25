@@ -52,7 +52,7 @@ func startAPIServer(apiAddr string, gee *cache.Group) {
 func main() {
 	var port int
 	var api bool
-	flag.IntVar(&port, "port", 8001, "Geecache server port")
+	flag.IntVar(&port, "port", 8001, "cache server port")
 	flag.BoolVar(&api, "api", false, "Start a api server?")
 	flag.Parse()
 
