@@ -26,11 +26,11 @@ func createGroup() *cache.Group {
 }
 
 func startCacheServer(addr string, addrs []string, gee *cache.Group) {
-	peers := cache.MakeHTTPPool(addr)
-	peers.Set(addrs...)
-	gee.RegisterPeers(peers)
+	server := cache.MakeHTTPPool(addr)
+	server.Set(addrs...)
+	gee.RegisterPeers(server)
 	log.Println("cache is running at", addr)
-	log.Fatal(http.ListenAndServe(addr[7:], peers))
+	log.Fatal(http.ListenAndServe(addr[7:], server))
 }
 
 func startAPIServer(apiAddr string, gee *cache.Group) {
@@ -49,12 +49,12 @@ func startAPIServer(apiAddr string, gee *cache.Group) {
 	log.Fatal(http.ListenAndServe(apiAddr[7:], nil))
 }
 
-func startCacheServerGrpc(addr string, addrs []string, gee *cache.Group) {
-	peers := cache.MakeGrpcPool(addr)
-	peers.Set(addrs...)
-	gee.RegisterPeers(peers)
+func startCacheServerGRPC(addr string, addrs []string, gee *cache.Group) {
+	server := cache.MakeGrpcPool(addr)
+	server.Set(addrs...)
+	gee.RegisterPeers(server)
 	log.Println("cache is running at", addr)
-	peers.Run()
+	server.Run()
 }
 
 func main() {
@@ -66,9 +66,9 @@ func main() {
 
 	apiAddr := "http://localhost:9999"
 	addrMap := map[int]string{
-		8001: ":8001", //http://localhost
-		8002: ":8002", //http://localhost
-		8003: ":8003", //http://localhost
+		8001: "localhost:8001", //HTTP VERSION: http://localhost:8001
+		8002: "localhost:8002", //HTTP VERSION: http://localhost:8002
+		8003: "localhost:8003", //HTTP VERSION: http://localhost:8003
 	}
 
 	var addrs []string
@@ -80,6 +80,6 @@ func main() {
 	if api {
 		go startAPIServer(apiAddr, gee)
 	}
-	//startCacheServer(addrMap[port], addrs, gee)
-	startCacheServerGrpc(addrMap[port], addrs, gee)
+	//HTTP VERSION: startCacheServer(addrMap[port], addrs, gee)
+	startCacheServerGRPC(addrMap[port], addrs, gee)
 }

@@ -67,7 +67,7 @@ func (p *GrpcPool) Log(format string, v ...interface{}) {
 	log.Printf("[Server %s] %s", p.me, fmt.Sprintf(format, v...))
 }
 
-func (p *GrpcPool) Get(ctx context.Context, req *pb.Request) (*pb.Response, error) {
+func (p *GrpcPool) Get(_ context.Context, req *pb.Request) (*pb.Response, error) {
 	p.Log("%s %s", req.Group, req.Key)
 	response := &pb.Response{}
 
