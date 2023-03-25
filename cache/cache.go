@@ -19,15 +19,14 @@ func (c *cache) put(key string, value ByteView) {
 	c.lfu.Put(key, value)
 }
 
-func (c *cache) get(key string) (ByteView, bool) {
+func (c *cache) get(key string) (value ByteView, ok bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.lfu == nil {
-		c.lfu = MakeLFU(c.cacheBytes)
+		return
 	}
 	if v, ok := c.lfu.Get(key); ok {
 		return v.(ByteView), ok
-	} else {
-		return ByteView{}, ok
 	}
+	return
 }

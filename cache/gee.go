@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"7daysgo/cache/pb"
 	"7daysgo/cache/singleflight"
 	"fmt"
 	"log"
@@ -62,10 +63,15 @@ func (g *Group) RegisterPeers(peers PeerPicker) {
 }
 
 func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
-	if bytes, err := peer.Get(g.name, key); err != nil {
+	req := &pb.Request{
+		Group: g.name,
+		Key:   key,
+	}
+	resp := &pb.Response{}
+	if err := peer.Get(req, resp); err != nil {
 		return ByteView{}, err
 	} else {
-		return ByteView{b: bytes}, nil
+		return ByteView{resp.Value}, nil
 	}
 }
 
@@ -81,10 +87,12 @@ func (g *Group) Get(key string) (ByteView, error) {
 }
 
 func (g *Group) load(key string) (value ByteView, err error) {
+	// each key is only fetched once (either locally or remotely)
+	// regardless of the number of concurrent callers.
 	view, err := g.loader.Do(key, func() (interface{}, error) {
 		if g.peers != nil {
 			if peer, ok := g.peers.PickPeer(key); ok {
-				if value, err := g.getFromPeer(peer, key); err == nil {
+				if value, err = g.getFromPeer(peer, key); err == nil {
 					return value, nil
 				}
 				log.Println("[GeeCache] Failed to get from peer", err)
@@ -92,7 +100,8 @@ func (g *Group) load(key string) (value ByteView, err error) {
 		}
 		return g.getLocally(key)
 	})
-	if err != nil {
+
+	if err == nil {
 		return view.(ByteView), nil
 	}
 	return
