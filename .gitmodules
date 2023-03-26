@@ -1,0 +1,3 @@
+[submodule "tiny-cache"]
+	path = tiny-cache
+	url = git@github.com:loomts/tiny-cache.git
