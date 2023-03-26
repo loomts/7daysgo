@@ -1,7 +1,6 @@
 package main
 
 import (
-	"7daysgo/cache"
 	"7daysgo/web"
 	"fmt"
 	"net/http"
