@@ -60,15 +60,16 @@ func startCacheServerGRPC(addr string, addrs []string, gee *cache.Group) {
 func main() {
 	var port int
 	var api bool
-	flag.IntVar(&port, "port", 8001, "cache server port")
-	flag.BoolVar(&api, "api", false, "Start a api server?")
+	flag.IntVar(&port, "port", 8004, "cache server port")
+	flag.BoolVar(&api, "api", true, "Start a api server?")
 	flag.Parse()
 
 	apiAddr := "http://localhost:9999"
 	addrMap := map[int]string{
-		8001: "localhost:8001", //HTTP VERSION: http://localhost:8001
-		8002: "localhost:8002", //HTTP VERSION: http://localhost:8002
-		8003: "localhost:8003", //HTTP VERSION: http://localhost:8003
+		8001: "116.205.130.21:8001", //HTTP VERSION: http://localhost:8001
+		8002: "116.205.130.21:8002", //HTTP VERSION: http://localhost:8002
+		8003: "116.205.130.21:8003", //HTTP VERSION: http://localhost:8003
+		//8004: "localhost:8004",
 	}
 
 	var addrs []string

@@ -2,7 +2,7 @@ package cache
 
 import (
 	"7daysgo/cache/pb"
-	"7daysgo/cache/singleflight"
+	"7daysgo/cache/single_flight"
 	"fmt"
 	"log"
 	"sync"
@@ -25,7 +25,7 @@ type Group struct {
 	getter    Getter
 	mainCache cache
 	peers     PeerPicker
-	loader    *singleflight.Group
+	loader    *single_flight.Group
 }
 
 var (
@@ -43,7 +43,7 @@ func MakeGroup(name string, cacheBytes int, getter Getter) *Group {
 		name:      name,
 		getter:    getter,
 		mainCache: cache{cacheBytes: cacheBytes},
-		loader:    &singleflight.Group{},
+		loader:    &single_flight.Group{},
 	}
 	groups[name] = g
 	return g
@@ -80,7 +80,7 @@ func (g *Group) Get(key string) (ByteView, error) {
 		return ByteView{}, fmt.Errorf("key is required")
 	}
 	if v, ok := g.mainCache.get(key); ok {
-		log.Println("[GeeCache] hit")
+		//log.Println("[GeeCache] hit")
 		return v, nil
 	}
 	return g.load(key)

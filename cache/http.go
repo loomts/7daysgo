@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"7daysgo/cache/consistenthash"
+	"7daysgo/cache/consistent_hash"
 	"7daysgo/cache/pb"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -22,7 +22,7 @@ type HTTPPool struct {
 	me          string
 	basePath    string
 	mu          sync.Mutex
-	peers       *consistenthash.Map
+	peers       *consistent_hash.Map
 	httpGetters map[string]*httpGetter
 }
 
@@ -36,7 +36,7 @@ func MakeHTTPPool(me string) *HTTPPool {
 func (p *HTTPPool) Set(peers ...string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	p.peers = consistenthash.New(replicas, nil)
+	p.peers = consistent_hash.New(replicas, nil)
 	p.peers.Add(peers...)
 	p.httpGetters = make(map[string]*httpGetter, len(peers))
 	for _, peer := range peers {

@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"7daysgo/cache/consistenthash"
+	"7daysgo/cache/consistent_hash"
 	"7daysgo/cache/pb"
 	"context"
 	"fmt"
@@ -11,13 +11,14 @@ import (
 	"log"
 	"net"
 	"sync"
+	"time"
 )
 
 type GrpcPool struct {
 	pb.UnimplementedGroupCacheServer
 	me          string
 	mu          sync.Mutex
-	peers       *consistenthash.Map
+	peers       *consistent_hash.Map
 	grpcGetters map[string]*grpcGetter
 }
 
@@ -38,7 +39,11 @@ func (g *grpcGetter) Get(req *pb.Request, resp *pb.Response) error {
 	}
 	defer conn.Close()
 	client := pb.NewGroupCacheClient(conn)
-	response, err := client.Get(context.Background(), req)
+	fmt.Printf("get %v %v from %v\n", req.GetKey(), req.GetGroup(), g.addr)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	response, err := client.Get(ctx, req)
+	fmt.Printf("get %v %v from %v\n", req.GetKey(), req.GetGroup(), g.addr)
 	resp.Value = response.Value
 	return err
 }
@@ -46,7 +51,7 @@ func (g *grpcGetter) Get(req *pb.Request, resp *pb.Response) error {
 func (p *GrpcPool) Set(peers ...string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	p.peers = consistenthash.New(replicas, nil)
+	p.peers = consistent_hash.New(replicas, nil)
 	p.peers.Add(peers...)
 	p.grpcGetters = map[string]*grpcGetter{}
 	for _, peer := range peers {
